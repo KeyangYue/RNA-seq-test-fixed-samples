@@ -1,0 +1,48 @@
+project: testRNA_RK_KY
+sequence_files:
+  file1:
+    name: /data2/core-med1/kyue/testseq_170325/fastq/lane1_Rainer_RNA_tests_r1.fq.gz
+    base_definition:
+    - BC(1-12)
+    - UMI(13-27)
+  file2:
+    name: /data2/core-med1/kyue/testseq_170325/fastq/lane1_Rainer_RNA_tests_r2.fq.gz
+    base_definition: cDNA(1-93)
+reference:
+  STAR_index: /data2/core-med1/kyue/SAindex
+  GTF_file: /data2/core-med1/kyue/hg38/gencode.v47.primary_assembly.annotation.gtf
+  additional_STAR_params:
+  additional_files: ~
+out_dir: /data2/core-med1/kyue/testseq_170325/zUMI_out
+num_threads: 16
+mem_limit: 0
+filter_cutoffs:
+  BC_filter:
+    num_bases: 2
+    phred: 20
+  UMI_filter:
+    num_bases: 3
+    phred: 20
+barcodes:
+  barcode_num: ~
+  barcode_file: /data2/core-med1/kyue/testseq_170325/barcode.txt
+  barcode_sharing: ''
+  automatic: no
+  BarcodeBinning: 2
+  nReadsperCell: 100
+  demultiplex: no
+counting_opts:
+  introns: yes
+  downsampling: '0'
+  strand: 0
+  Ham_Dist: 0
+  write_ham: no
+  velocyto: no
+  primaryHit: yes
+  twoPass: yes
+make_stats: yes
+which_Stage: Filtering
+Rscript_exec: Rscript
+STAR_exec: /data2/core-med1/kyue/STAR/bin/Linux_x86_64/STAR
+pigz_exec: pigz
+samtools_exec: samtools

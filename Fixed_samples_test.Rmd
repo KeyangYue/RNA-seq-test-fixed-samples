@@ -1,0 +1,64 @@
+---
+title: "Fixed_samples_test"
+output: html_document
+date: "2025-04-03"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(rstatix)
+library(biomaRt)
+library(DESeq2)
+```
+
+Read counts and barcodes
+```{r}
+counts <- readRDS("/data2/core-med1/kyue/zUMIs_out/zUMIs_output/expression/testRNA_RK_KY.dgecounts.rds")
+bc <- read.csv('sample_bc.csv')
+```
+
+Switch barcodes to sample names， use exon counts
+```{r}
+bc <- bc[match(colnames(counts[["umicount"]][["exon"]][["all"]]),bc$BC),]
+umi_ex <- counts[["umicount"]][["exon"]][["all"]]
+colnames(umi_ex) <- bc$Sample
+```
+
+
+Remove mitochondrial genes
+```{r}
+ensembl<-useEnsembl(biomart="ensembl",dataset="hsapiens_gene_ensembl", host="https://oct2024.archive.ensembl.org",mirror="www")
+geneName<-getBM(attributes=c("ensembl_gene_id", "external_gene_name"), filters="ensembl_gene_id", values=rownames(umi_ex), mart=ensembl, useCache=FALSE)
+gid_sp_ex <- strsplit(rownames(umi_ex), split = '.', fixed = TRUE)
+gene_id_ex <- sapply(gid_sp_ex, function(x){x[1]})
+
+
+umi_ex_df <- as.data.frame(as.matrix(umi_ex)) %>% rownames_to_column(var = 'ensembl_gene_id')
+umi_ex_df <- umi_ex_df %>% inner_join(geneName, by = 'ensembl_gene_id')
+
+umi_ex_df_filt <- umi_ex_df[!grepl("^MT-", umi_ex_df$external_gene_name),]
+```
+Remove genes with too low expression
+```{r}
+keepGenes_ex <- rowSums(umi_ex_df_filt[,2:15]<=2)<10
+umi_ex_df_filt_2 <- umi_ex_df_filt[keepGenes_ex,]
+rownames(umi_ex_df_filt_2) <- NULL
+umi_ex_filt <- umi_ex_df_filt_2[,-16] %>% column_to_rownames(var = 'ensembl_gene_id') %>% as.matrix()
+```
+
+PCA
+
+```{r}
+sampleMeta <- read.csv('sampleMetadata.csv')
+sampleMeta <- sampleMeta[match(colnames(umi_ex_filt),sampleMeta$Sample),]
+dds_umi_ex<-DESeqDataSetFromMatrix(umi_ex_filt,
+                                     colData=sampleMeta,
+                                     design=~Protocol)
+dds_umi_ex <- estimateSizeFactors(dds_umi_ex)
+dds_umi_ex <- estimateDispersions(dds_umi_ex)
+vsd_umi_ex<-varianceStabilizingTransformation(dds_umi_ex)
+DESeq2::plotPCA(vsd_umi_ex, intgroup = c('Protocol'))
+```
+

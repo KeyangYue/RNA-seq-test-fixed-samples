@@ -1,0 +1,15 @@
+﻿Sample,Protocol,Donor
+S3,"old blood, 4%PFA after freezing",A
+S6,"old blood, 4%PFA after freezing",F
+S13,"new blood, 4%PFA after freezing",C
+S19,"new blood, 4%PFA after freezing",E
+S4,"old blood, freeze after lysis",B
+S8,"old blood, freeze after lysis",D
+S11,"new blood, freeze after lysis",C
+S15,"new blood, freeze after lysis",C
+S1,"new blood, lysis+4%PFA+freeze",G
+S9,"new blood, lysis+4%PFA+freeze",C
+S14,"new blood, lysis+4%PFA+freeze",C
+S5,"new blood, 10x protocol",H
+S12,"new blood, 10x protocol",C
+S16,"new blood, 10x protocol",C
